@@ -2,4 +2,5 @@ FROM openjdk:21-jdk
 
 COPY . .
 RUN ./gradlew shadowJar
-ENTRYPOINT ["java", "-jar", "./app.jar"]
+RUN cd build/libs
+ENTRYPOINT ["java", "-jar", "app-1.0-SHAPSHOT-all.jar"]
