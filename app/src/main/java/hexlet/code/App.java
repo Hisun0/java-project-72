@@ -3,14 +3,10 @@ package hexlet.code;
 import io.javalin.Javalin;
 import lombok.extern.slf4j.Slf4j;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
 @Slf4j
 public class App {
-    private static final Dotenv dotenv = Dotenv.load();
-
     private static int getPort() {
-        var port = dotenv.get("PORT", "7070");
+        var port = System.getenv().getOrDefault("PORT", "7070");
         return Integer.parseInt(port);
     }
 
