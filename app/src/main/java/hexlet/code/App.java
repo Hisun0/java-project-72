@@ -32,6 +32,11 @@ public class App {
 
     private static String readResourceFile() throws IOException {
         var inputStream = App.class.getClassLoader().getResourceAsStream("schema.sql");
+
+        if (inputStream == null) {
+            throw new IOException("File \"schema.sql\" is not found!");
+        }
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             return reader.lines().collect(Collectors.joining("\n"));
         }
@@ -39,13 +44,16 @@ public class App {
 
     public static Javalin getApp() throws IOException, SQLException {
         var hikariConfig = new HikariConfig();
+
+        // Потребовалось использовать дополнительный метод setDriverClassName
+        // Это связано с тем, что Railway отказывался автоматически выбирать нужный тип
         hikariConfig.setDriverClassName(getDriverName());
         hikariConfig.setJdbcUrl(getDatabaseUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
         var sql = readResourceFile();
 
-        // log.info(sql);
+        log.info("Executing SQL schema: \n{}", sql);
         try (var conn = dataSource.getConnection();
                 var statement = conn.createStatement()) {
             statement.execute(sql);
