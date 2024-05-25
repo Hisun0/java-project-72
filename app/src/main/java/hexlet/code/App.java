@@ -20,7 +20,10 @@ public class App {
         return Integer.parseInt(port);
     }
 
-    private static String getDatabaseUrl() {
+    private static String getDatabaseUrl() throws ClassNotFoundException {
+        var defaultDriver = "org.h2.Driver";
+        var driver = System.getenv().getOrDefault("DRIVER", defaultDriver);
+        Class.forName(driver);
         var defaultUrl = "jdbc:h2:mem:project";
         return System.getenv().getOrDefault("JDBC_DATABASE_URL", defaultUrl);
     }
