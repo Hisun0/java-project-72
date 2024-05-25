@@ -21,8 +21,13 @@ public class App {
     }
 
     private static String getDatabaseUrl() {
-        var defaultUrl = "jdbc:postgresql://roundhouse.proxy.rlwy.net:23783/railway?password=MIcIgWQrTKimBqmJHbKxgBvXSvHxuhFn&user=postgres";
+        var defaultUrl = "jdbc:h2:mem:project";
         return System.getenv().getOrDefault("JDBC_DATABASE_URL", defaultUrl);
+    }
+
+    private static String getDriverName() {
+        var defaultDriver = "org.h2.Driver";
+        return System.getenv().getOrDefault("DRIVER", defaultDriver);
     }
 
     private static String readResourceFile() throws IOException {
@@ -34,7 +39,7 @@ public class App {
 
     public static Javalin getApp() throws IOException, SQLException {
         var hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName("org.postgresql.Driver");
+        hikariConfig.setDriverClassName(getDriverName());
         hikariConfig.setJdbcUrl(getDatabaseUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
