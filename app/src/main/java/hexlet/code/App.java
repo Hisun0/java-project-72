@@ -21,7 +21,7 @@ public class App {
     }
 
     private static String getDatabaseUrl() {
-        var defaultUrl = "jdbc:h2:mem:project";
+        var defaultUrl = "jdbc:postgresql://roundhouse.proxy.rlwy.net:23783/railway?password=MIcIgWQrTKimBqmJHbKxgBvXSvHxuhFn&user=postgres";
         return System.getenv().getOrDefault("JDBC_DATABASE_URL", defaultUrl);
     }
 
@@ -34,6 +34,7 @@ public class App {
 
     public static Javalin getApp() throws IOException, SQLException {
         var hikariConfig = new HikariConfig();
+        hikariConfig.setDriverClassName("org.postgresql.Driver");
         hikariConfig.setJdbcUrl(getDatabaseUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
