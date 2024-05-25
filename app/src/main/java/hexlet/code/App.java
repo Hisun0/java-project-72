@@ -39,7 +39,7 @@ public class App {
         var dataSource = new HikariDataSource(hikariConfig);
         var sql = readResourceFile();
 
-        log.info(sql);
+        // log.info(sql);
         try (var conn = dataSource.getConnection();
                 var statement = conn.createStatement()) {
             statement.execute(sql);
