@@ -20,10 +20,7 @@ public class App {
         return Integer.parseInt(port);
     }
 
-    private static String getDatabaseUrl() throws ClassNotFoundException {
-        var defaultDriver = "org.h2.Driver";
-        var driver = System.getenv().getOrDefault("DRIVER", defaultDriver);
-        Class.forName(driver);
+    private static String getDatabaseUrl() {
         var defaultUrl = "jdbc:h2:mem:project";
         return System.getenv().getOrDefault("JDBC_DATABASE_URL", defaultUrl);
     }
@@ -35,7 +32,7 @@ public class App {
         }
     }
 
-    public static Javalin getApp() throws IOException, SQLException, ClassNotFoundException {
+    public static Javalin getApp() throws IOException, SQLException {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(getDatabaseUrl());
 
@@ -54,7 +51,7 @@ public class App {
                 .get("/", context -> context.result("Hello World"));
     }
 
-    public static void main(String[] args) throws SQLException, IOException, ClassNotFoundException {
+    public static void main(String[] args) throws SQLException, IOException {
         var app = getApp();
         app.start(getPort());
     }
