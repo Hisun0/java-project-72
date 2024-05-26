@@ -9,6 +9,7 @@ import io.javalin.rendering.template.JavalinJte;
 import lombok.extern.slf4j.Slf4j;
 
 import static hexlet.code.Template.createTemplateEngine;
+import static hexlet.code.util.Util.readResourceFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,18 +33,6 @@ public class App {
     private static String getDriverName() {
         var defaultDriver = "org.h2.Driver";
         return System.getenv().getOrDefault("DRIVER", defaultDriver);
-    }
-
-    private static String readResourceFile() throws IOException {
-        var inputStream = App.class.getClassLoader().getResourceAsStream("schema.sql");
-
-        if (inputStream == null) {
-            throw new IOException("File \"schema.sql\" is not found!");
-        }
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            return reader.lines().collect(Collectors.joining("\n"));
-        }
     }
 
     public static Javalin getApp() throws IOException, SQLException {
