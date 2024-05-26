@@ -2,9 +2,13 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import hexlet.code.controller.RootController;
 import hexlet.code.repository.BaseRepository;
 import io.javalin.Javalin;
+import io.javalin.rendering.template.JavalinJte;
 import lombok.extern.slf4j.Slf4j;
+
+import static hexlet.code.Template.createTemplateEngine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,7 +20,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class App {
     private static int getPort() {
-        var port = System.getenv().getOrDefault("PORT", "7070");
+        var port = System.getenv().getOrDefault("PORT", "7072");
         return Integer.parseInt(port);
     }
 
@@ -61,8 +65,14 @@ public class App {
 
         BaseRepository.dataSource = dataSource;
 
-        return Javalin.create(javalinConfig -> javalinConfig.bundledPlugins.enableDevLogging())
-                .get("/", context -> context.result("Hello World"));
+        var app = Javalin.create(javalinConfig -> {
+                    javalinConfig.bundledPlugins.enableDevLogging();
+                    javalinConfig.fileRenderer(new JavalinJte(createTemplateEngine()));
+                });
+
+        app.get("/", RootController::index);
+
+        return app;
     }
 
     public static void main(String[] args) throws SQLException, IOException {
