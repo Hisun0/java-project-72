@@ -6,21 +6,21 @@ import hexlet.code.model.Url;
 import hexlet.code.repository.BaseRepository;
 import hexlet.code.repository.UrlsRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static hexlet.code.util.Util.readResourceFile;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
-public class RepositoryTest {
+public final class RepositoryTest {
     private HikariDataSource testDataSource;
     private HikariDataSource originalDataSource;
 
@@ -36,10 +36,11 @@ public class RepositoryTest {
         testDataSource = BaseRepository.dataSource;
 
         var startSql = readResourceFile("test.sql");
-        var sql = "INSERT INTO urls (name, created_at) VALUES\n" +
-                "('example', '2024-05-27 10:42:04'),\n" +
-                "('another', '2024-01-26 16:00:34'),\n" +
-                "('onemore', '2023-03-25 21:21:04')";
+        var sql = """
+                INSERT INTO urls (name, created_at) VALUES
+                ('example', '2024-05-27 10:42:04'),
+                ('another', '2024-01-26 16:00:34'),
+                ('onemore', '2023-03-25 21:21:04')""";
 
         try (var conn = dataSource.getConnection();
                 var statement = conn.createStatement()) {

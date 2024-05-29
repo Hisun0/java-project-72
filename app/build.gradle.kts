@@ -17,11 +17,6 @@ repositories {
     mavenCentral()
 }
 
-tasks.named("build") {
-    dependsOn.remove(tasks.named("checkstyleMain"))
-    dependsOn.remove(tasks.named("test"))
-}
-
 dependencies {
     implementation("io.javalin:javalin:6.1.3")
     implementation("io.javalin:javalin-rendering:6.1.3")
