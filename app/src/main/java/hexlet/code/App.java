@@ -11,12 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import static hexlet.code.Template.createTemplateEngine;
 import static hexlet.code.util.Util.readResourceFile;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class App {
@@ -55,9 +51,9 @@ public class App {
         BaseRepository.dataSource = dataSource;
 
         var app = Javalin.create(javalinConfig -> {
-                    javalinConfig.bundledPlugins.enableDevLogging();
-                    javalinConfig.fileRenderer(new JavalinJte(createTemplateEngine()));
-                });
+            javalinConfig.bundledPlugins.enableDevLogging();
+            javalinConfig.fileRenderer(new JavalinJte(createTemplateEngine()));
+        });
 
         app.get("/", RootController::index);
 
