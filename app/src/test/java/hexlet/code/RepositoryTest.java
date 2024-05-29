@@ -89,6 +89,22 @@ public class RepositoryTest {
         assertEquals(expected, url);
     }
 
+    @Test
+    void findByNameTest() throws SQLException {
+        String dateTimeString = "2024-05-27 10:42:04";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
+        Timestamp timestamp = Timestamp.valueOf(localDateTime);
+
+        String name = "example";
+        long id = 1;
+        var url = UrlsRepository.findByName(name).orElseThrow(() -> new SQLException("Не нашел"));
+        var expected = new Url(name, timestamp);
+        expected.setId(id);
+
+        assertEquals(expected, url);
+    }
+
     @AfterEach
     void backUp() {
         BaseRepository.dataSource = originalDataSource;
