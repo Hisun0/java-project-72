@@ -34,7 +34,7 @@ public class UrlsRepository extends BaseRepository {
 
             if (resultSet.next()) {
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("createdAt");
+                var createdAt = resultSet.getTimestamp("created_at");
                 var url = new Url(name, createdAt);
                 url.setId(id);
                 return Optional.of(url);

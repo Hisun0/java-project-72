@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static hexlet.code.util.Util.readResourceFile;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,35 +35,58 @@ public class RepositoryTest {
 
         testDataSource = BaseRepository.dataSource;
 
-        var sql = readResourceFile();
+        var startSql = readResourceFile("test.sql");
+        var sql = "INSERT INTO urls (name, created_at) VALUES\n" +
+                "('example', '2024-05-27 10:42:04'),\n" +
+                "('another', '2024-01-26 16:00:34'),\n" +
+                "('onemore', '2023-03-25 21:21:04')";
 
         try (var conn = dataSource.getConnection();
                 var statement = conn.createStatement()) {
-            statement.execute(sql);
+            statement.execute(startSql);
+            statement.executeUpdate(sql);
         }
     }
 
     @Test
     void saveTest() throws SQLException {
         var startUrl = new Url("https://ru.hexlet.io", new Timestamp(System.currentTimeMillis()));
-        startUrl.setId(1);
+        startUrl.setId(4);
 
         UrlsRepository.save(startUrl);
 
-        var sql = "SELECT * FROM urls";
-        var connection = testDataSource.getConnection();
-        var statement = connection.createStatement();
-        var resultSet = statement.executeQuery(sql);
-        log.info("Получаю resultSet: {}", resultSet.next());
+        var sql = "SELECT * FROM urls WHERE id = 4";
 
-        var name = resultSet.getString("name");
-        var createdAt = resultSet.getTimestamp("created_at");
-        var endUrl = new Url(name, createdAt);
-        endUrl.setId(1);
+        try (var connection = testDataSource.getConnection();
+                var statement = connection.createStatement()) {
+            var resultSet = statement.executeQuery(sql);
+            log.info("Получаю resultSet: {}", resultSet.next());
 
-        log.info("Стартовый URL: {}", startUrl);
-        log.info("Конечный URL: {}", endUrl);
-        assertEquals(startUrl, endUrl);
+            var name = resultSet.getString("name");
+            var id = resultSet.getLong("id");
+            var createdAt = resultSet.getTimestamp("created_at");
+            var endUrl = new Url(name, createdAt);
+            endUrl.setId(id);
+
+            log.info("Стартовый URL: {}", startUrl);
+            log.info("Конечный URL: {}", endUrl);
+            assertEquals(startUrl, endUrl);
+        }
+    }
+
+    @Test
+    void findTest() throws SQLException {
+        String dateTimeString = "2024-05-27 10:42:04";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
+        Timestamp timestamp = Timestamp.valueOf(localDateTime);
+
+        long id = 1;
+        var url = UrlsRepository.find(id).orElseThrow(() -> new SQLException("Не нашел"));
+        var expected = new Url("example", timestamp);
+        expected.setId(id);
+
+        assertEquals(expected, url);
     }
 
     @AfterEach
