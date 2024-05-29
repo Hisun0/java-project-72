@@ -19,7 +19,7 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <div class="navbar-nav">
                         <a class="nav-link" aria-current="page" href="/">Home</a>
-                        <a class="nav-link" href="/pages">Pages</a>
+                        <a class="nav-link" href="/urls">Pages</a>
                     </div>
                 </div>
             </div>

@@ -1,8 +1,17 @@
+@import hexlet.code.dto.RootPage
+@param RootPage page
+
 @template.layout.page(
     content = @`
         <section>
             <div class="container-fluid bg-dark p-5">
                 <div class="row">
+                    @if(page.getFlash() != null)
+                        <div class="${page.getFlash().get("class")}" role="alert">
+                            ${page.getFlash().get("message")}
+                        </div>
+                    @endif
+
                     <div class="col-md-10 col-lg-8 mx-auto text-white">
                         <h1 class="display-3 mb-0">Page Analyzer</h1>
                         <p class="lead">Free to check websites for SEO suitability</p>

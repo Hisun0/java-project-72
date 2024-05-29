@@ -6,7 +6,10 @@ import hexlet.code.model.Url;
 import hexlet.code.repository.BaseRepository;
 import hexlet.code.repository.UrlsRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,20 +26,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public final class RepositoryTest {
     private static HikariDataSource testDataSource;
     private static HikariDataSource originalDataSource;
-    private static final List<Url> urls = new ArrayList<>();
+    private static final List<Url> URLS = new ArrayList<>();
 
     @BeforeAll
-    static void fillUrls() throws IOException, SQLException {
+    static void fillURLS() throws IOException, SQLException {
         var url1 = new Url("example", convertStringToTimestamp("2024-05-27 10:42:04"));
         var url2 = new Url("another", convertStringToTimestamp("2024-01-26 16:00:34"));
         var url3 = new Url("onemore", convertStringToTimestamp("2023-03-25 21:21:04"));
 
-        urls.add(url1);
-        urls.add(url2);
-        urls.add(url3);
+        URLS.add(url1);
+        URLS.add(url2);
+        URLS.add(url3);
 
         int index = 0;
-        for (var url : urls) {
+        for (var url : URLS) {
             url.setId(++index);
         }
 
@@ -54,7 +57,7 @@ public final class RepositoryTest {
 
         var startSql = readResourceFile("test.sql");
         var sql = """
-                INSERT INTO urls (name, created_at) VALUES
+                INSERT INTO URLS (name, created_at) VALUES
                 ('example', '2024-05-27 10:42:04'),
                 ('another', '2024-01-26 16:00:34'),
                 ('onemore', '2023-03-25 21:21:04')""";
@@ -73,7 +76,7 @@ public final class RepositoryTest {
 
         UrlsRepository.save(startUrl);
 
-        var sql = "SELECT * FROM urls WHERE id = 4";
+        var sql = "SELECT * FROM URLS WHERE id = 4";
 
         try (var connection = testDataSource.getConnection();
                 var statement = connection.createStatement()) {
@@ -94,8 +97,8 @@ public final class RepositoryTest {
 
     @Test
     void findTest() throws SQLException {
-        var url = UrlsRepository.find(urls.getFirst().getId()).orElseThrow(() -> new SQLException("Не нашел"));
-        var expected = urls.getFirst();
+        var url = UrlsRepository.find(URLS.getFirst().getId()).orElseThrow(() -> new SQLException("Не нашел"));
+        var expected = URLS.getFirst();
 
         log.info("expected: {}", expected);
         log.info("actual: {}", url);
@@ -104,24 +107,24 @@ public final class RepositoryTest {
 
     @Test
     void findByNameTest() throws SQLException {
-        var url = UrlsRepository.findByName(urls.getFirst().getName()).orElseThrow(() -> new SQLException("Не нашел"));
-        var expected = urls.getFirst();
+        var url = UrlsRepository.findByName(URLS.getFirst().getName()).orElseThrow(() -> new SQLException("Не нашел"));
+        var expected = URLS.getFirst();
 
         assertEquals(expected, url);
     }
 
     @Test
     void getEntitiesTest() throws SQLException {
-        var repositoryUrls = UrlsRepository.getEntities();
+        var repositoryURLS = UrlsRepository.getEntities();
 
-        assertEquals(urls, repositoryUrls);
+        assertEquals(URLS, repositoryURLS);
     }
 
     @AfterEach
     void clearDatabase() throws IOException, SQLException {
         var startSql = readResourceFile("test.sql");
         var sql = """
-                INSERT INTO urls (name, created_at) VALUES
+                INSERT INTO URLS (name, created_at) VALUES
                 ('example', '2024-05-27 10:42:04'),
                 ('another', '2024-01-26 16:00:34'),
                 ('onemore', '2023-03-25 21:21:04')""";

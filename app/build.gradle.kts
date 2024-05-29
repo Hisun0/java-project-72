@@ -28,6 +28,8 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("gg.jte:jte:3.1.12")
 
+    implementation("org.apache.commons:commons-lang3:3.14.0")
+
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core:3.23.1")
