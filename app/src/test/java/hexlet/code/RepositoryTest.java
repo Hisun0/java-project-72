@@ -6,26 +6,40 @@ import hexlet.code.model.Url;
 import hexlet.code.repository.BaseRepository;
 import hexlet.code.repository.UrlsRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static hexlet.code.util.Util.readResourceFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 public final class RepositoryTest {
-    private HikariDataSource testDataSource;
-    private HikariDataSource originalDataSource;
+    private static HikariDataSource testDataSource;
+    private static HikariDataSource originalDataSource;
+    private static final List<Url> urls = new ArrayList<>();
 
-    @BeforeEach
-    void setUp() throws SQLException, IOException {
+    @BeforeAll
+    static void fillUrls() throws IOException, SQLException {
+        var url1 = new Url("example", convertStringToTimestamp("2024-05-27 10:42:04"));
+        var url2 = new Url("another", convertStringToTimestamp("2024-01-26 16:00:34"));
+        var url3 = new Url("onemore", convertStringToTimestamp("2023-03-25 21:21:04"));
+
+        urls.add(url1);
+        urls.add(url2);
+        urls.add(url3);
+
+        int index = 0;
+        for (var url : urls) {
+            url.setId(++index);
+        }
+
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl("jdbc:h2:mem:test");
         var dataSource = new HikariDataSource(hikariConfig);
@@ -35,6 +49,9 @@ public final class RepositoryTest {
 
         testDataSource = BaseRepository.dataSource;
 
+        log.info("Value of originalDataSource: " + originalDataSource);
+        log.info("Value of testDataSource: " + testDataSource);
+
         var startSql = readResourceFile("test.sql");
         var sql = """
                 INSERT INTO urls (name, created_at) VALUES
@@ -43,7 +60,7 @@ public final class RepositoryTest {
                 ('onemore', '2023-03-25 21:21:04')""";
 
         try (var conn = dataSource.getConnection();
-                var statement = conn.createStatement()) {
+             var statement = conn.createStatement()) {
             statement.execute(startSql);
             statement.executeUpdate(sql);
         }
@@ -77,37 +94,53 @@ public final class RepositoryTest {
 
     @Test
     void findTest() throws SQLException {
-        String dateTimeString = "2024-05-27 10:42:04";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
-        Timestamp timestamp = Timestamp.valueOf(localDateTime);
+        var url = UrlsRepository.find(urls.getFirst().getId()).orElseThrow(() -> new SQLException("Не нашел"));
+        var expected = urls.getFirst();
 
-        long id = 1;
-        var url = UrlsRepository.find(id).orElseThrow(() -> new SQLException("Не нашел"));
-        var expected = new Url("example", timestamp);
-        expected.setId(id);
-
+        log.info("expected: {}", expected);
+        log.info("actual: {}", url);
         assertEquals(expected, url);
     }
 
     @Test
     void findByNameTest() throws SQLException {
-        String dateTimeString = "2024-05-27 10:42:04";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
-        Timestamp timestamp = Timestamp.valueOf(localDateTime);
-
-        String name = "example";
-        long id = 1;
-        var url = UrlsRepository.findByName(name).orElseThrow(() -> new SQLException("Не нашел"));
-        var expected = new Url(name, timestamp);
-        expected.setId(id);
+        var url = UrlsRepository.findByName(urls.getFirst().getName()).orElseThrow(() -> new SQLException("Не нашел"));
+        var expected = urls.getFirst();
 
         assertEquals(expected, url);
     }
 
+    @Test
+    void getEntitiesTest() throws SQLException {
+        var repositoryUrls = UrlsRepository.getEntities();
+
+        assertEquals(urls, repositoryUrls);
+    }
+
     @AfterEach
-    void backUp() {
+    void clearDatabase() throws IOException, SQLException {
+        var startSql = readResourceFile("test.sql");
+        var sql = """
+                INSERT INTO urls (name, created_at) VALUES
+                ('example', '2024-05-27 10:42:04'),
+                ('another', '2024-01-26 16:00:34'),
+                ('onemore', '2023-03-25 21:21:04')""";
+
+        try (var conn = testDataSource.getConnection();
+             var statement = conn.createStatement()) {
+            statement.execute(startSql);
+            statement.executeUpdate(sql);
+        }
+    }
+
+    @AfterAll
+    static void backUp() {
         BaseRepository.dataSource = originalDataSource;
+    }
+
+    private static Timestamp convertStringToTimestamp(String time) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.parse(time, formatter);
+        return Timestamp.valueOf(localDateTime);
     }
 }

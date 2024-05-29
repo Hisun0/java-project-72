@@ -4,6 +4,8 @@ import hexlet.code.model.Url;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class UrlsRepository extends BaseRepository {
@@ -34,8 +36,8 @@ public class UrlsRepository extends BaseRepository {
 
             if (resultSet.next()) {
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("created_at");
-                var url = new Url(name, createdAt);
+                var created_at = resultSet.getTimestamp("created_at");
+                var url = new Url(name, created_at);
                 url.setId(id);
                 return Optional.of(url);
             }
@@ -54,13 +56,35 @@ public class UrlsRepository extends BaseRepository {
 
             if (resultSet.next()) {
                 var id = resultSet.getLong("id");
-                var createdAt = resultSet.getTimestamp("created_at");
-                var url = new Url(name, createdAt);
+                var created_at = resultSet.getTimestamp("created_at");
+                var url = new Url(name, created_at);
                 url.setId(id);
                 return Optional.of(url);
             }
 
             return Optional.empty();
         }
+    }
+
+    public static List<Url> getEntities() throws SQLException {
+        String sql = "SELECT * FROM urls";
+        var result = new ArrayList<Url>();
+
+        try (var conn = dataSource.getConnection();
+                var statement = conn.createStatement()) {
+            var resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                var name = resultSet.getString("name");
+                var created_at = resultSet.getTimestamp("created_at");
+                var id = resultSet.getLong("id");
+                var url = new Url(name, created_at);
+                url.setId(id);
+
+                result.add(url);
+            }
+        }
+
+        return result;
     }
 }
