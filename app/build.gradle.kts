@@ -4,10 +4,15 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.freefair.lombok") version "8.6"
     id("java")
+    jacoco
 }
 
 application {
     mainClass.set("hexlet.code.App")
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
 }
 
 group = "hexlet.code"

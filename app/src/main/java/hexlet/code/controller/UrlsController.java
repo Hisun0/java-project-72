@@ -28,26 +28,19 @@ public class UrlsController {
             String name = scheme + "://" + hostname;
             Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
-            var maybeUrl = UrlsRepository.findByName(name);
-            if (maybeUrl.isPresent()) {
-                throw new SQLDataException("Invalid URL");
+            if (UrlsRepository.findByName(name).isPresent()) {
+                throw new SQLDataException("URL already exists!");
             }
 
             var url = new Url(name, createdAt);
             UrlsRepository.save(url);
 
-            var flashMap = Map.of(
-                    "message", "URL successfully added!",
-                    "class", "alert alert-success"
-            );
+            var flashMap = createFlashMap("URL successfully added!", "alert alert-success");
             context.sessionAttribute("flash", flashMap);
             context.redirect("/urls");
         } catch (MalformedURLException | URISyntaxException | IllegalArgumentException err) {
             // ошибка, если введена некорректная ссылка
-            var flashMap = Map.of(
-                    "message", "Invalid URL!",
-                    "class", "alert alert-danger"
-            );
+            var flashMap = createFlashMap("Invalid URL!", "alert alert-danger");
             context.sessionAttribute("flash", flashMap);
             context.redirect("/");
         } catch (SQLTimeoutException e) {
@@ -55,10 +48,7 @@ public class UrlsController {
             log.error(e.getMessage());
         } catch (SQLDataException dataException) {
             // ошибка, если в базе данных уже есть сущность с таким же именем
-            var flashMap = Map.of(
-                    "message", "URL already exists!",
-                    "class", "alert alert-warning"
-            );
+            var flashMap = createFlashMap(dataException.getMessage(), "alert alert-warning");
             context.sessionAttribute("flash", flashMap);
             context.redirect("/urls");
         }
@@ -83,5 +73,10 @@ public class UrlsController {
 
         var page = new UrlPage(url);
         context.render("url/show.jte", model("page", page));
+    }
+
+    // метод для создания флеш сообщения
+    private static Map<String, String> createFlashMap(String message, String className) {
+        return Map.of("message", message, "class", className);
     }
 }
