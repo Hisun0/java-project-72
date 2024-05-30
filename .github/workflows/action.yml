@@ -37,3 +37,9 @@ jobs:
           workingDirectory: app
           coverageCommand: ./gradlew jacocoTestReport
           coverageLocations: build/reports/jacoco/test/jacocoTestReport.xml:jacoco
+
+      - name: Upload coverage report
+        working-directory: app
+        run: |
+          ./cc-reporter format-coverage build/reports/jacoco/test/jacocoTestReport.xml -t jacoco -o codeclimate.0.json --prefix app
+          ./cc-reporter upload-coverage
