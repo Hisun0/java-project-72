@@ -12,11 +12,14 @@ jobs:
           distribution: oracle
           java-version: 21
 
-      - uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build
-          build-root-directory: app
+      - name: Run installDist
+        working-directory: app
+        run: ./gradlew installDist
+
+      - name: Run tests
+        working-directory: app
+        run: ./gradlew test
 
       - name: Run checkStyle
         working-directory: app
-        run: ./gradlew checkStyleMain
+        run: ./gradlew checkstyleMain checkstyleTest

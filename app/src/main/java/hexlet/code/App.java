@@ -3,19 +3,17 @@ package hexlet.code;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import hexlet.code.controller.RootController;
+import hexlet.code.controller.UrlsController;
 import hexlet.code.repository.BaseRepository;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
 import lombok.extern.slf4j.Slf4j;
 
 import static hexlet.code.Template.createTemplateEngine;
+import static hexlet.code.util.Util.readResourceFile;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class App {
@@ -34,18 +32,6 @@ public class App {
         return System.getenv().getOrDefault("DRIVER", defaultDriver);
     }
 
-    private static String readResourceFile() throws IOException {
-        var inputStream = App.class.getClassLoader().getResourceAsStream("schema.sql");
-
-        if (inputStream == null) {
-            throw new IOException("File \"schema.sql\" is not found!");
-        }
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            return reader.lines().collect(Collectors.joining("\n"));
-        }
-    }
-
     public static Javalin getApp() throws IOException, SQLException {
         var hikariConfig = new HikariConfig();
 
@@ -55,7 +41,7 @@ public class App {
         hikariConfig.setJdbcUrl(getDatabaseUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
-        var sql = readResourceFile();
+        var sql = readResourceFile("schema.sql");
 
         log.info("Executing SQL schema: \n{}", sql);
         try (var conn = dataSource.getConnection();
@@ -66,11 +52,15 @@ public class App {
         BaseRepository.dataSource = dataSource;
 
         var app = Javalin.create(javalinConfig -> {
-                    javalinConfig.bundledPlugins.enableDevLogging();
-                    javalinConfig.fileRenderer(new JavalinJte(createTemplateEngine()));
-                });
+            javalinConfig.bundledPlugins.enableDevLogging();
+            javalinConfig.fileRenderer(new JavalinJte(createTemplateEngine()));
+        });
 
         app.get("/", RootController::index);
+        app.get("/urls", UrlsController::showAll);
+        app.get("/urls/{id}", UrlsController::show);
+
+        app.post("/urls", UrlsController::create);
 
         return app;
     }
