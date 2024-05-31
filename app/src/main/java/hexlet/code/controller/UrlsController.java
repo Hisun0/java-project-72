@@ -3,6 +3,7 @@ package hexlet.code.controller;
 import hexlet.code.dto.UrlPage;
 import hexlet.code.dto.UrlsPage;
 import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
 import hexlet.code.repository.UrlsRepository;
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +72,21 @@ public class UrlsController {
         var id = context.pathParamAsClass("id", Long.class).get();
         var url = UrlsRepository.find(id).orElseThrow(() -> new RuntimeException(""));
 
-        var page = new UrlPage(url);
+        var page = new UrlPage(url, new UrlCheck());
+        context.render("url/show.jte", model("page", page));
+    }
+
+    public static void check(Context context) {
+        var id = context.pathParamAsClass("id", Long.class).get();
+        var url = UrlsRepository.find(id).orElseThrow(RuntimeException::new);
+
+        // TODO SEO проверка сайта
+
+        var urlCheck = new UrlCheck(
+                200, "Тест", "Тестовый", "Много текста", url.getId(), new Timestamp(System.currentTimeMillis())
+        );
+
+        var page = new UrlPage(url, urlCheck);
         context.render("url/show.jte", model("page", page));
     }
 
