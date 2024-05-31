@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,9 +22,8 @@ import static hexlet.code.util.Util.readResourceFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
-public final class RepositoryTest {
+public final class UrlsRepositoryTest {
     private static HikariDataSource testDataSource;
-    private static HikariDataSource originalDataSource;
     private static final List<Url> URLS = new ArrayList<>();
 
     @BeforeAll
@@ -45,27 +43,15 @@ public final class RepositoryTest {
 
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl("jdbc:h2:mem:test");
-        var dataSource = new HikariDataSource(hikariConfig);
 
-        originalDataSource = BaseRepository.dataSource;
-        BaseRepository.dataSource = dataSource;
-
+        BaseRepository.dataSource = new HikariDataSource(hikariConfig);
         testDataSource = BaseRepository.dataSource;
 
-        log.info("Value of originalDataSource: " + originalDataSource);
-        log.info("Value of testDataSource: " + testDataSource);
-
         var startSql = readResourceFile("test.sql");
-        var sql = """
-                INSERT INTO URLS (name, created_at) VALUES
-                ('example', '2024-05-27 10:42:04'),
-                ('another', '2024-01-26 16:00:34'),
-                ('onemore', '2023-03-25 21:21:04')""";
 
-        try (var conn = dataSource.getConnection();
+        try (var conn = testDataSource.getConnection();
              var statement = conn.createStatement()) {
             statement.execute(startSql);
-            statement.executeUpdate(sql);
         }
     }
 
@@ -114,7 +100,7 @@ public final class RepositoryTest {
     }
 
     @Test
-    void getEntitiesTest() throws SQLException {
+    void getEntitiesTest() {
         var repositoryURLS = UrlsRepository.getEntities();
 
         assertEquals(URLS, repositoryURLS);
@@ -123,22 +109,11 @@ public final class RepositoryTest {
     @AfterEach
     void clearDatabase() throws IOException, SQLException {
         var startSql = readResourceFile("test.sql");
-        var sql = """
-                INSERT INTO URLS (name, created_at) VALUES
-                ('example', '2024-05-27 10:42:04'),
-                ('another', '2024-01-26 16:00:34'),
-                ('onemore', '2023-03-25 21:21:04')""";
 
         try (var conn = testDataSource.getConnection();
              var statement = conn.createStatement()) {
             statement.execute(startSql);
-            statement.executeUpdate(sql);
         }
-    }
-
-    @AfterAll
-    static void backUp() {
-        BaseRepository.dataSource = originalDataSource;
     }
 
     private static Timestamp convertStringToTimestamp(String time) {
