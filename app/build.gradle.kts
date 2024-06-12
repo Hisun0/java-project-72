@@ -35,10 +35,11 @@ dependencies {
     implementation("com.h2database:h2:2.2.224")
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("gg.jte:jte:3.1.12")
+    implementation("org.jsoup:jsoup:1.17.2")
 
     implementation("org.apache.commons:commons-lang3:3.14.0")
 
-    compileOnly("com.konghq:unirest-java-core:4.4.0")
+    implementation("com.konghq:unirest-java-core:4.4.0")
 
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")

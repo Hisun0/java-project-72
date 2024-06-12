@@ -7,7 +7,9 @@ import hexlet.code.model.UrlCheck;
 import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlsRepository;
 import io.javalin.http.Context;
+import kong.unirest.core.Unirest;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -81,10 +83,18 @@ public class UrlsController {
         var id = context.pathParamAsClass("id", Long.class).get();
         var url = UrlsRepository.find(id).orElseThrow(RuntimeException::new);
 
-        // TODO SEO проверка сайта
+        var response = Unirest.get(url.getName()).asString();
+
+        var document = Jsoup.parse(response.getBody());
+        var description = document.selectFirst("meta[name=description]").attr("content");
 
         var urlCheck = new UrlCheck(
-                200, "Тест", "Тестовый", "Много текста", url.getId(), new Timestamp(System.currentTimeMillis())
+                response.getStatus(),
+                document.title(),
+                document.selectFirst("h1").text(),
+                description,
+                url.getId(),
+                new Timestamp(System.currentTimeMillis())
         );
         UrlCheckRepository.save(urlCheck);
 
