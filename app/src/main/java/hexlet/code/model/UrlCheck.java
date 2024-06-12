@@ -1,14 +1,14 @@
 package hexlet.code.model;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.sql.Timestamp;
 
+@AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class UrlCheck {
     private long id;
     private int statusCode;

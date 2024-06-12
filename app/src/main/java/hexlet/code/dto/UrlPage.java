@@ -5,9 +5,15 @@ import hexlet.code.model.UrlCheck;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Getter
 public class UrlPage {
     private Url url;
-    private UrlCheck urlCheck;
+    private List<UrlCheck> urlCheck;
+
+    public UrlPage(Url url) {
+        this.url = url;
+    }
 }

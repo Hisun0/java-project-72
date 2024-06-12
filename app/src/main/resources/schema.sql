@@ -12,7 +12,7 @@ CREATE TABLE url_checks (
     url_id BIGINT REFERENCES urls(id) NOT NULL,
     status_code INT,
     h1 VARCHAR(255),
-    title varchar(255),
-    description text,
+    title VARCHAR(255),
+    description TEXT,
     created_at TIMESTAMP NOT NULL
 );

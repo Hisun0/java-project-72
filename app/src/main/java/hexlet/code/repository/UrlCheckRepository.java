@@ -39,6 +39,40 @@ public class UrlCheckRepository extends BaseRepository {
         }
     }
 
+    public static List<UrlCheck> getEntities() {
+        String sql = "SELECT * FROM url_checks";
+        var result = new ArrayList<UrlCheck>();
+
+        try (var conn = dataSource.getConnection();
+             var statement = conn.createStatement()) {
+            var resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                var urlId = resultSet.getLong("url_id");
+                var status = resultSet.getInt("status_code");
+                var h1 = resultSet.getString("h1");
+                var title = resultSet.getString("title");
+                var description = resultSet.getString("description");
+                var createdAt = resultSet.getTimestamp("created_at");
+
+                var urlCheck = new UrlCheck(
+                        status,
+                        title,
+                        h1,
+                        description,
+                        urlId,
+                        createdAt
+                );
+
+                result.add(urlCheck);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
+    }
+
     public static List<UrlCheck> findAll(long urlId) {
         String sql = "SELECT * FROM url_checks WHERE url_id = ?";
         var result = new ArrayList<UrlCheck>();

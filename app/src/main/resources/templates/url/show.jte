@@ -40,28 +40,30 @@
                 </tr>
             </thead>
             <tbody>
-
-            <tr>
-                <td>
-                    1
-                </td>
-                <td>
-                    200
-                </td>
-                <td>
-                    Анализатор страниц
-                </td>
-                <td>
-                    Анализатор страниц
-                </td>
-                <td>
-
-                </td>
-                <td>
-                    29/05/2024 18:37
-                </td>
-            </tr>
-
+                @if(page.getUrlCheck() != null)
+                    @for(var urlCheck : page.getUrlCheck())
+                        <tr>
+                            <td>
+                                ${urlCheck.getUrlId()}
+                            </td>
+                            <td>
+                                ${urlCheck.getStatusCode()}
+                            </td>
+                            <td>
+                                ${urlCheck.getTitle()}
+                            </td>
+                            <td>
+                                ${urlCheck.getH1()}
+                            </td>
+                            <td>
+                                ${urlCheck.getDescription()}
+                            </td>
+                            <td>
+                                ${urlCheck.getCreatedAd().toString()}
+                            </td>
+                        </tr>
+                    @endfor
+                @endif
             </tbody>
         </table>
     </div>

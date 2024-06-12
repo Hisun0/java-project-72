@@ -4,6 +4,7 @@ import hexlet.code.dto.UrlPage;
 import hexlet.code.dto.UrlsPage;
 import hexlet.code.model.Url;
 import hexlet.code.model.UrlCheck;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlsRepository;
 import io.javalin.http.Context;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,7 @@ public class UrlsController {
         var id = context.pathParamAsClass("id", Long.class).get();
         var url = UrlsRepository.find(id).orElseThrow(() -> new RuntimeException(""));
 
-        var page = new UrlPage(url, new UrlCheck());
+        var page = new UrlPage(url);
         context.render("url/show.jte", model("page", page));
     }
 
@@ -85,8 +86,11 @@ public class UrlsController {
         var urlCheck = new UrlCheck(
                 200, "Тест", "Тестовый", "Много текста", url.getId(), new Timestamp(System.currentTimeMillis())
         );
+        UrlCheckRepository.save(urlCheck);
 
-        var page = new UrlPage(url, urlCheck);
+        var urlChecks = UrlCheckRepository.getEntities();
+
+        var page = new UrlPage(url, urlChecks);
         context.render("url/show.jte", model("page", page));
     }
 
